@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, User } from 'lucide-react';
@@ -6,6 +5,7 @@ import { ButtonCustom } from '@/components/ui/button-custom';
 import { CardCustom, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card-custom';
 import PageTransition from '@/components/shared/PageTransition';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const StudentLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +15,7 @@ const StudentLogin = () => {
     password: '',
   });
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,14 +26,12 @@ const StudentLogin = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate login process
     try {
-      // In a real app, you would call your authentication API here
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const success = await login(loginData.email, loginData.password, 'student');
       
-      // For demo purposes, we'll just redirect to the student dashboard
-      toast.success('Login successful!');
-      navigate('/dashboard/student');
+      if (success) {
+        navigate('/dashboard/student');
+      }
     } catch (error) {
       toast.error('Login failed. Please check your credentials.');
       console.error('Login error:', error);

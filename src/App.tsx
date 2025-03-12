@@ -11,7 +11,11 @@ import NotFound from "./pages/NotFound";
 import StudentLogin from "./pages/auth/StudentLogin";
 import FacultyLogin from "./pages/auth/FacultyLogin";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import FacultyDashboard from "./pages/dashboard/FacultyDashboard";
 import BrowseMaterials from "./pages/study-materials/Browse";
+import MaterialUpload from "./pages/study-materials/Upload";
+import EventDetails from "./pages/events/Details";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -20,23 +24,28 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow pt-16">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth/student-login" element={<StudentLogin />} />
-              <Route path="/auth/faculty-login" element={<FacultyLogin />} />
-              <Route path="/dashboard/student" element={<StudentDashboard />} />
-              <Route path="/study-materials/browse" element={<BrowseMaterials />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow pt-16">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth/student-login" element={<StudentLogin />} />
+                <Route path="/auth/faculty-login" element={<FacultyLogin />} />
+                <Route path="/dashboard/student" element={<StudentDashboard />} />
+                <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
+                <Route path="/study-materials/browse" element={<BrowseMaterials />} />
+                <Route path="/study-materials/upload" element={<MaterialUpload />} />
+                <Route path="/events/details/:id" element={<EventDetails />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
