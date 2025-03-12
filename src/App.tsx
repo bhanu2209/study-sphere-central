@@ -13,6 +13,7 @@ import FacultyLogin from "./pages/auth/FacultyLogin";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import FacultyDashboard from "./pages/dashboard/FacultyDashboard";
 import BrowseMaterials from "./pages/study-materials/Browse";
+import CategoryMaterials from "./pages/study-materials/CategoryMaterials";
 import MaterialUpload from "./pages/study-materials/Upload";
 import EventDetails from "./pages/events/Details";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/dashboard/student" element={<StudentDashboard />} />
                 <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
                 <Route path="/study-materials/browse" element={<BrowseMaterials />} />
+                <Route path="/study-materials/category/:categoryId" element={<CategoryMaterials />} />
                 <Route path="/study-materials/upload" element={<MaterialUpload />} />
                 <Route path="/events/details/:id" element={<EventDetails />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
