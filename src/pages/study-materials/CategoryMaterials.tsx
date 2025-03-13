@@ -8,75 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { FileText, Download, ChevronLeft, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import PageTransition from '@/components/shared/PageTransition';
-
-// Mock function to get materials by category ID (replace with actual API call)
-const getMaterialsByCategory = async (categoryId: string) => {
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return mock data
-  return {
-    data: {
-      category: {
-        id: parseInt(categoryId),
-        title: categoryId === '1' ? 'Computer Science' : 
-               categoryId === '2' ? 'Engineering' : 
-               categoryId === '3' ? 'Mathematics' : 
-               categoryId === '4' ? 'Physics' : 
-               categoryId === '5' ? 'Chemistry' : 'Biology',
-        description: 'Browse all materials related to this subject',
-      },
-      materials: [
-        {
-          id: '1',
-          title: 'Introduction to Algorithms',
-          description: 'Comprehensive guide to basic algorithms and data structures',
-          fileType: 'pdf',
-          author: 'Dr. Smith',
-          uploadDate: '2023-03-15',
-          downloadCount: 142,
-          size: '3.2 MB',
-          tags: ['algorithms', 'data structures', 'beginner']
-        },
-        {
-          id: '2',
-          title: 'Advanced Data Structures',
-          description: 'Deep dive into complex data structures with examples',
-          fileType: 'pdf',
-          author: 'Prof. Johnson',
-          uploadDate: '2023-02-10',
-          downloadCount: 98,
-          size: '4.7 MB',
-          tags: ['data structures', 'advanced', 'algorithms']
-        },
-        {
-          id: '3',
-          title: 'Programming Fundamentals',
-          description: 'Basic concepts of programming with practical examples',
-          fileType: 'pdf',
-          author: 'Sarah Wilson',
-          uploadDate: '2023-01-25',
-          downloadCount: 215,
-          size: '2.8 MB',
-          tags: ['programming', 'beginner', 'fundamentals']
-        },
-        {
-          id: '4',
-          title: 'Object-Oriented Design Patterns',
-          description: 'Common design patterns in object-oriented programming',
-          fileType: 'pdf',
-          author: 'Dr. Anderson',
-          uploadDate: '2023-04-05',
-          downloadCount: 76,
-          size: '5.1 MB',
-          tags: ['OOP', 'design patterns', 'advanced']
-        },
-      ]
-    },
-    success: true,
-    error: null
-  };
-};
+import { materialsApi } from '@/services/api';
 
 const CategoryMaterials = () => {
   const { categoryId = '1' } = useParams<{ categoryId: string }>();
@@ -84,7 +16,7 @@ const CategoryMaterials = () => {
   
   const { data, isLoading } = useQuery({
     queryKey: ['materials', categoryId],
-    queryFn: () => getMaterialsByCategory(categoryId),
+    queryFn: () => materialsApi.getMaterialsByCategory(categoryId),
   });
   
   const category = data?.data.category;
@@ -97,10 +29,28 @@ const CategoryMaterials = () => {
     material.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
-  const handleDownload = (materialId: string, title: string) => {
-    // Implement actual download functionality here
-    toast.success(`Started downloading: ${title}`);
-    console.log(`Downloading material with ID: ${materialId}`);
+  const handleDownload = async (materialId: string, title: string) => {
+    toast.loading('Preparing download...');
+    
+    try {
+      const result = await materialsApi.downloadMaterial(materialId, title);
+      
+      if (result.success && result.data) {
+        toast.dismiss();
+        toast.success(`Started downloading: ${title}`);
+        
+        // In a real app, we would actually trigger the download here
+        // For this mock, we just show a success message
+        console.log(`Downloading material with ID: ${materialId}`, result.data);
+      } else {
+        toast.dismiss();
+        toast.error(result.error || 'Download failed');
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Download failed');
+      console.error('Download error:', error);
+    }
   };
   
   return (

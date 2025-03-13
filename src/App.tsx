@@ -15,7 +15,10 @@ import FacultyDashboard from "./pages/dashboard/FacultyDashboard";
 import BrowseMaterials from "./pages/study-materials/Browse";
 import CategoryMaterials from "./pages/study-materials/CategoryMaterials";
 import MaterialUpload from "./pages/study-materials/Upload";
+import EventsList from "./pages/events/List";
 import EventDetails from "./pages/events/Details";
+import ForumDiscussion from "./pages/forum/Discussion";
+import Notices from "./pages/notice-board/Notices";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -39,7 +42,10 @@ const App = () => (
                 <Route path="/study-materials/browse" element={<BrowseMaterials />} />
                 <Route path="/study-materials/category/:categoryId" element={<CategoryMaterials />} />
                 <Route path="/study-materials/upload" element={<MaterialUpload />} />
+                <Route path="/events/list" element={<EventsList />} />
                 <Route path="/events/details/:id" element={<EventDetails />} />
+                <Route path="/forum/discussion" element={<ForumDiscussion />} />
+                <Route path="/notice-board/notices" element={<Notices />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,14 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { BookOpen, Menu, X, LogOut, User } from 'lucide-react';
 import { ButtonCustom } from '@/components/ui/button-custom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
   
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -31,6 +42,26 @@ const Navbar: React.FC = () => {
     // Close mobile menu when route changes
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
+  
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+  
+  const getDashboardLink = () => {
+    if (!user) return '/';
+    
+    switch(user.role) {
+      case 'student':
+        return '/dashboard/student';
+      case 'faculty':
+        return '/dashboard/faculty';
+      case 'admin':
+        return '/dashboard/admin';
+      default:
+        return '/';
+    }
+  };
   
   return (
     <header 
@@ -72,16 +103,44 @@ const Navbar: React.FC = () => {
         
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/auth/student-login">
-            <ButtonCustom variant="outline" size="sm">
-              Student Login
-            </ButtonCustom>
-          </Link>
-          <Link to="/auth/faculty-login">
-            <ButtonCustom size="sm">
-              Faculty Portal
-            </ButtonCustom>
-          </Link>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <ButtonCustom variant="outline" size="sm" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {user?.name}
+                </ButtonCustom>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to={getDashboardLink()}>Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Link to="/auth/student-login">
+                <ButtonCustom variant="outline" size="sm">
+                  Student Login
+                </ButtonCustom>
+              </Link>
+              <Link to="/auth/faculty-login">
+                <ButtonCustom size="sm">
+                  Faculty Portal
+                </ButtonCustom>
+              </Link>
+            </>
+          )}
         </div>
         
         {/* Mobile Menu Button */}
@@ -119,16 +178,38 @@ const Navbar: React.FC = () => {
           ))}
           
           <div className="flex flex-col gap-2 mt-4 animate-fade-in animation-delay-500">
-            <Link to="/auth/student-login">
-              <ButtonCustom variant="outline" fullWidth>
-                Student Login
-              </ButtonCustom>
-            </Link>
-            <Link to="/auth/faculty-login">
-              <ButtonCustom fullWidth>
-                Faculty Portal
-              </ButtonCustom>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link to={getDashboardLink()}>
+                  <ButtonCustom variant="outline" fullWidth className="justify-start">
+                    <User className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </ButtonCustom>
+                </Link>
+                <ButtonCustom 
+                  variant="destructive" 
+                  fullWidth 
+                  className="justify-start"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </ButtonCustom>
+              </>
+            ) : (
+              <>
+                <Link to="/auth/student-login">
+                  <ButtonCustom variant="outline" fullWidth>
+                    Student Login
+                  </ButtonCustom>
+                </Link>
+                <Link to="/auth/faculty-login">
+                  <ButtonCustom fullWidth>
+                    Faculty Portal
+                  </ButtonCustom>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

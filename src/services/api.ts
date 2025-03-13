@@ -1,5 +1,6 @@
 
 import { toast } from 'sonner';
+import { User } from '../contexts/AuthContext';
 
 // Define base types for our API
 export interface ApiResponse<T> {
@@ -87,6 +88,15 @@ export const userApi = {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Basic validation 
+    if (!email || !password) {
+      return {
+        data: null,
+        error: 'Email and password are required',
+        success: false
+      };
+    }
+    
     // For faculty, validate email contains .com
     if (role === 'faculty' && !email.includes('.com')) {
       return {
@@ -97,13 +107,15 @@ export const userApi = {
     }
     
     // Mock successful login
+    const user: User = {
+      id: '1',
+      name: role === 'faculty' ? 'Dr. Parker' : 'John Smith',
+      email,
+      role
+    };
+    
     return {
-      data: {
-        id: '1',
-        name: role === 'faculty' ? 'Dr. Parker' : 'John Smith',
-        email,
-        role
-      },
+      data: user,
       error: null,
       success: true
     };
@@ -112,6 +124,25 @@ export const userApi = {
   logout: async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
     return { data: null, error: null, success: true };
+  },
+  
+  getCurrentUser: async (): Promise<ApiResponse<User>> => {
+    // In a real app, this would make a request to verify the session
+    // Here we just check localStorage
+    const storedUser = localStorage.getItem('campus_hub_user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        return { data: user, error: null, success: true };
+      } catch (error) {
+        return { 
+          data: null, 
+          error: 'Failed to parse user data', 
+          success: false 
+        };
+      }
+    }
+    return { data: null, error: 'User not authenticated', success: false };
   }
 };
 
@@ -166,6 +197,74 @@ export const materialsApi = {
     };
   },
   
+  getMaterialsByCategory: async (categoryId: string) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Return mock data
+    return {
+      data: {
+        category: {
+          id: parseInt(categoryId),
+          title: categoryId === '1' ? 'Computer Science' : 
+                 categoryId === '2' ? 'Engineering' : 
+                 categoryId === '3' ? 'Mathematics' : 
+                 categoryId === '4' ? 'Physics' : 
+                 categoryId === '5' ? 'Chemistry' : 'Biology',
+          description: 'Browse all materials related to this subject',
+        },
+        materials: [
+          {
+            id: '1',
+            title: 'Introduction to Algorithms',
+            description: 'Comprehensive guide to basic algorithms and data structures',
+            fileType: 'pdf',
+            author: 'Dr. Smith',
+            uploadDate: '2023-03-15',
+            downloadCount: 142,
+            size: '3.2 MB',
+            tags: ['algorithms', 'data structures', 'beginner']
+          },
+          {
+            id: '2',
+            title: 'Advanced Data Structures',
+            description: 'Deep dive into complex data structures with examples',
+            fileType: 'pdf',
+            author: 'Prof. Johnson',
+            uploadDate: '2023-02-10',
+            downloadCount: 98,
+            size: '4.7 MB',
+            tags: ['data structures', 'advanced', 'algorithms']
+          },
+          {
+            id: '3',
+            title: 'Programming Fundamentals',
+            description: 'Basic concepts of programming with practical examples',
+            fileType: 'pdf',
+            author: 'Sarah Wilson',
+            uploadDate: '2023-01-25',
+            downloadCount: 215,
+            size: '2.8 MB',
+            tags: ['programming', 'beginner', 'fundamentals']
+          },
+          {
+            id: '4',
+            title: 'Object-Oriented Design Patterns',
+            description: 'Common design patterns in object-oriented programming',
+            fileType: 'pdf',
+            author: 'Dr. Anderson',
+            uploadDate: '2023-04-05',
+            downloadCount: 76,
+            size: '5.1 MB',
+            tags: ['OOP', 'design patterns', 'advanced']
+          },
+        ]
+      },
+      success: true,
+      error: null
+    };
+  },
+  
   uploadMaterial: async (data: FormData) => {
     // Simulate network delay and processing
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -182,11 +281,92 @@ export const materialsApi = {
       error: null,
       success: true
     };
+  },
+  
+  downloadMaterial: async (materialId: string, title: string) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // In a real implementation, this would generate a download link
+    // Here we just return a success message
+    return {
+      data: {
+        downloadUrl: `#download-link-${materialId}`,
+        fileName: `${title.replace(/\s+/g, '_').toLowerCase()}.pdf`
+      },
+      error: null,
+      success: true
+    };
   }
 };
 
 // Events-related API calls
 export const eventsApi = {
+  getEvents: async () => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Return mock data
+    return {
+      data: [
+        {
+          id: 1,
+          title: 'End of Semester Exam Preparation Workshop',
+          date: 'May 15, 2023',
+          time: '09:00 AM - 12:00 PM',
+          location: 'Main Auditorium, Building B',
+          organizer: 'Prof. Johnson',
+          department: 'Computer Science',
+          attendees: 120,
+          maxAttendees: 200,
+          tags: ['exam prep', 'workshop', 'academic'],
+          image: 'https://images.unsplash.com/photo-1518770660439-4636190af475',
+        },
+        {
+          id: 2,
+          title: 'Annual Tech Symposium',
+          date: 'June 5, 2023',
+          time: '10:00 AM - 05:00 PM',
+          location: 'University Convention Center',
+          organizer: 'Dr. Williams',
+          department: 'Technology Research',
+          attendees: 250,
+          maxAttendees: 300,
+          tags: ['tech', 'symposium', 'research'],
+          image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87',
+        },
+        {
+          id: 3,
+          title: 'Career Fair - Engineering & Technology',
+          date: 'June 20, 2023',
+          time: '11:00 AM - 04:00 PM',
+          location: 'Campus Plaza',
+          organizer: 'Career Development Center',
+          department: 'Student Affairs',
+          attendees: 180,
+          maxAttendees: 500,
+          tags: ['career', 'jobs', 'networking'],
+          image: 'https://images.unsplash.com/photo-1560523159-4a9692d222f9',
+        },
+        {
+          id: 4,
+          title: 'Artificial Intelligence Research Showcase',
+          date: 'July 10, 2023',
+          time: '02:00 PM - 06:00 PM',
+          location: 'Research Wing, Building A',
+          organizer: 'AI Research Group',
+          department: 'Computer Science',
+          attendees: 80,
+          maxAttendees: 150,
+          tags: ['AI', 'research', 'technology'],
+          image: 'https://images.unsplash.com/photo-1535378917042-10a22c95931a',
+        },
+      ],
+      success: true,
+      error: null
+    };
+  },
+  
   getEvent: async (id: string) => {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -231,16 +411,10 @@ export const eventsApi = {
 
 // Create a mock authentication context to simulate backend authentication
 export const simulateAuth = () => {
-  // Check if user data exists in localStorage
-  const storedUser = localStorage.getItem('campus_hub_user');
-  
-  // Parse user data if it exists
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  
   // Return auth methods
   return {
-    user,
-    isAuthenticated: !!user,
+    user: null,
+    isAuthenticated: false,
     
     login: async (email: string, password: string, role: 'student' | 'faculty') => {
       const result = await userApi.login(email, password, role);
@@ -248,7 +422,6 @@ export const simulateAuth = () => {
       if (result.success && result.data) {
         // Store user data in localStorage
         localStorage.setItem('campus_hub_user', JSON.stringify(result.data));
-        toast.success(`Welcome back, ${result.data.name}!`);
         return true;
       } else {
         toast.error(result.error || 'Login failed');
@@ -259,7 +432,6 @@ export const simulateAuth = () => {
     logout: async () => {
       await userApi.logout();
       localStorage.removeItem('campus_hub_user');
-      toast.success('You have been logged out');
     }
   };
 };
