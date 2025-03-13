@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { User } from '../contexts/AuthContext';
 
@@ -269,15 +268,34 @@ export const materialsApi = {
     // Simulate network delay and processing
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Mock successful upload
+    // In a real implementation, this would send data to the server
+    // Here we just simulate a successful upload
+    const title = data.get('title') as string;
+    const description = data.get('description') as string;
+    const category = data.get('category') as string;
+    const file = data.get('file') as File;
+    
+    // Store material in localStorage for persistence
+    const materials = JSON.parse(localStorage.getItem('campus_hub_materials') || '[]');
+    const newMaterial = {
+      id: Date.now().toString(),
+      title,
+      description,
+      category,
+      fileName: file?.name || 'unknown.pdf',
+      fileType: 'pdf',
+      uploadDate: new Date().toISOString(),
+      author: localStorage.getItem('campus_hub_user') ? JSON.parse(localStorage.getItem('campus_hub_user') || '{}').name : 'Unknown',
+      size: file?.size ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : '0 MB',
+      downloadCount: 0,
+      status: 'pending'
+    };
+    
+    materials.push(newMaterial);
+    localStorage.setItem('campus_hub_materials', JSON.stringify(materials));
+    
     return {
-      data: {
-        id: Date.now().toString(),
-        title: data.get('title') as string,
-        subject: data.get('subject') as string,
-        uploadDate: new Date().toISOString(),
-        status: 'pending'
-      },
+      data: newMaterial,
       error: null,
       success: true
     };
@@ -403,6 +421,209 @@ export const eventsApi = {
         registrationId: Date.now().toString(),
         registrationDate: new Date().toISOString()
       },
+      error: null,
+      success: true
+    };
+  },
+  
+  createEvent: async (eventData: any) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Store event in localStorage for persistence
+    const events = JSON.parse(localStorage.getItem('campus_hub_events') || '[]');
+    const newEvent = {
+      id: Date.now(),
+      ...eventData,
+      attendees: 0,
+      createdAt: new Date().toISOString()
+    };
+    
+    events.push(newEvent);
+    localStorage.setItem('campus_hub_events', JSON.stringify(events));
+    
+    return {
+      data: newEvent,
+      error: null,
+      success: true
+    };
+  }
+};
+
+// Notices-related API calls
+export const noticesApi = {
+  getNotices: async () => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Get notices from localStorage
+    const notices = JSON.parse(localStorage.getItem('campus_hub_notices') || '[]');
+    
+    return {
+      data: notices.length > 0 ? notices : [
+        {
+          id: 1,
+          title: 'Final Examination Schedule Released',
+          content: 'The schedule for the final examinations has been released. Please check your student portal for your personalized schedule.',
+          date: 'April 15, 2023',
+          author: 'Office of Academic Affairs',
+          category: 'academics',
+          important: true,
+          views: 530
+        },
+        {
+          id: 2,
+          title: 'Campus Closure: May 25-27',
+          content: 'The campus will be closed for maintenance from May 25 to May 27. All scheduled classes during this period will be conducted online.',
+          date: 'April 10, 2023',
+          author: 'Campus Administration',
+          category: 'administrative',
+          important: true,
+          views: 427
+        },
+        // ... more sample notices
+      ],
+      success: true,
+      error: null
+    };
+  },
+  
+  createNotice: async (noticeData: any) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
+    // Store notice in localStorage
+    const notices = JSON.parse(localStorage.getItem('campus_hub_notices') || '[]');
+    const user = JSON.parse(localStorage.getItem('campus_hub_user') || '{}');
+    
+    const newNotice = {
+      id: Date.now(),
+      ...noticeData,
+      date: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      author: user.name || 'Anonymous',
+      views: 0
+    };
+    
+    notices.push(newNotice);
+    localStorage.setItem('campus_hub_notices', JSON.stringify(notices));
+    
+    return {
+      data: newNotice,
+      error: null,
+      success: true
+    };
+  },
+  
+  deleteNotice: async (noticeId: number) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Remove notice from localStorage
+    const notices = JSON.parse(localStorage.getItem('campus_hub_notices') || '[]');
+    const updatedNotices = notices.filter((notice: any) => notice.id !== noticeId);
+    localStorage.setItem('campus_hub_notices', JSON.stringify(updatedNotices));
+    
+    return {
+      data: { id: noticeId },
+      error: null,
+      success: true
+    };
+  }
+};
+
+// Forum-related API calls
+export const forumApi = {
+  getDiscussions: async () => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Get discussions from localStorage
+    const discussions = JSON.parse(localStorage.getItem('campus_hub_discussions') || '[]');
+    
+    return {
+      data: discussions.length > 0 ? discussions : [
+        {
+          id: 1,
+          title: 'Tips for preparing for the Data Structures final exam?',
+          content: 'I\'m struggling with some of the advanced topics. Any tips or resources that helped you prepare?',
+          author: {
+            id: 'user1',
+            name: 'Alex Johnson',
+            role: 'student',
+            avatar: null
+          },
+          date: '2 days ago',
+          tags: ['academics', 'computer science', 'exams'],
+          upvotes: 24,
+          downvotes: 2,
+          comments: 8,
+          category: 'academics'
+        },
+        // ... more sample discussions
+      ],
+      success: true,
+      error: null
+    };
+  },
+  
+  createDiscussion: async (discussionData: any) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
+    // Store discussion in localStorage
+    const discussions = JSON.parse(localStorage.getItem('campus_hub_discussions') || '[]');
+    const user = JSON.parse(localStorage.getItem('campus_hub_user') || '{}');
+    
+    const newDiscussion = {
+      id: Date.now(),
+      ...discussionData,
+      author: {
+        id: user.id || 'anonymous',
+        name: user.name || 'Anonymous',
+        role: user.role || 'student',
+        avatar: null
+      },
+      date: '0 days ago',
+      upvotes: 0,
+      downvotes: 0,
+      comments: 0
+    };
+    
+    discussions.push(newDiscussion);
+    localStorage.setItem('campus_hub_discussions', JSON.stringify(discussions));
+    
+    return {
+      data: newDiscussion,
+      error: null,
+      success: true
+    };
+  },
+  
+  voteDiscussion: async (discussionId: number, isUpvote: boolean) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Update vote in localStorage
+    const discussions = JSON.parse(localStorage.getItem('campus_hub_discussions') || '[]');
+    const updatedDiscussions = discussions.map((discussion: any) => {
+      if (discussion.id === discussionId) {
+        return {
+          ...discussion,
+          upvotes: isUpvote ? discussion.upvotes + 1 : discussion.upvotes,
+          downvotes: !isUpvote ? discussion.downvotes + 1 : discussion.downvotes
+        };
+      }
+      return discussion;
+    });
+    
+    localStorage.setItem('campus_hub_discussions', JSON.stringify(updatedDiscussions));
+    
+    return {
+      data: { id: discussionId, isUpvote },
       error: null,
       success: true
     };

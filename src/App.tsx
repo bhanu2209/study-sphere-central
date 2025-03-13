@@ -18,7 +18,10 @@ import MaterialUpload from "./pages/study-materials/Upload";
 import EventsList from "./pages/events/List";
 import EventDetails from "./pages/events/Details";
 import ForumDiscussion from "./pages/forum/Discussion";
+import CreateDiscussion from "./pages/forum/CreateDiscussion";
 import Notices from "./pages/notice-board/Notices";
+import NoticeManagement from "./pages/faculty/NoticeManagement";
+import EventManagement from "./pages/faculty/EventManagement";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -39,14 +42,26 @@ const App = () => (
                 <Route path="/auth/faculty-login" element={<FacultyLogin />} />
                 <Route path="/dashboard/student" element={<StudentDashboard />} />
                 <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
+
+                {/* Study Materials Routes */}
                 <Route path="/study-materials/browse" element={<BrowseMaterials />} />
                 <Route path="/study-materials/category/:categoryId" element={<CategoryMaterials />} />
                 <Route path="/study-materials/upload" element={<MaterialUpload />} />
+                
+                {/* Events Routes */}
                 <Route path="/events/list" element={<EventsList />} />
                 <Route path="/events/details/:id" element={<EventDetails />} />
+                <Route path="/faculty/event-management" element={<EventManagement />} />
+                
+                {/* Forum Routes */}
                 <Route path="/forum/discussion" element={<ForumDiscussion />} />
+                <Route path="/forum/create" element={<CreateDiscussion />} />
+                
+                {/* Notice Board Routes */}
                 <Route path="/notice-board/notices" element={<Notices />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="/faculty/notice-management" element={<NoticeManagement />} />
+                
+                {/* Catch-all route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

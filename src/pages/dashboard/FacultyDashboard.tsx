@@ -6,9 +6,11 @@ import { CardCustom, CardContent, CardDescription, CardFooter, CardHeader, CardT
 import { ButtonCustom } from '@/components/ui/button-custom';
 import PageTransition from '@/components/shared/PageTransition';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const FacultyDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const { user } = useAuth();
   
   // Mock data for faculty dashboard
   const pendingMaterials = [
@@ -111,9 +113,9 @@ const FacultyDashboard = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
                     { icon: <Upload className="h-6 w-6" />, label: 'Upload Materials', path: '/study-materials/upload' },
-                    { icon: <PlusCircle className="h-6 w-6" />, label: 'Create Event', path: '/events/create' },
-                    { icon: <MessageSquare className="h-6 w-6" />, label: 'Forum Moderation', path: '/forum/moderation' },
-                    { icon: <FileText className="h-6 w-6" />, label: 'Post Notice', path: '/notice-board/create' },
+                    { icon: <PlusCircle className="h-6 w-6" />, label: 'Create Event', path: '/faculty/event-management' },
+                    { icon: <MessageSquare className="h-6 w-6" />, label: 'Forum Moderation', path: '/forum/discussion' },
+                    { icon: <FileText className="h-6 w-6" />, label: 'Post Notice', path: '/faculty/notice-management' },
                   ].map((action, index) => (
                     <Link 
                       key={action.label} 
@@ -163,9 +165,11 @@ const FacultyDashboard = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-border">
-                    <ButtonCustom variant="outline" fullWidth>
-                      View All Materials
-                    </ButtonCustom>
+                    <Link to="/study-materials/browse">
+                      <ButtonCustom variant="outline" fullWidth>
+                        View All Materials
+                      </ButtonCustom>
+                    </Link>
                   </CardFooter>
                 </CardCustom>
               </section>
@@ -174,7 +178,7 @@ const FacultyDashboard = () => {
               <section className="animate-fade-in-up animation-delay-300">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold">Upcoming Events</h2>
-                  <Link to="/events/create" className="text-sm text-primary hover:underline">
+                  <Link to="/faculty/event-management" className="text-sm text-primary hover:underline">
                     Create new
                   </Link>
                 </div>
@@ -211,9 +215,11 @@ const FacultyDashboard = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t border-border">
-                    <ButtonCustom variant="outline" fullWidth>
-                      View All Events
-                    </ButtonCustom>
+                    <Link to="/events/list">
+                      <ButtonCustom variant="outline" fullWidth>
+                        View All Events
+                      </ButtonCustom>
+                    </Link>
                   </CardFooter>
                 </CardCustom>
               </section>
@@ -226,10 +232,12 @@ const FacultyDashboard = () => {
                 <CardHeader className="pb-2">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-primary text-2xl font-bold">
-                      DP
+                      {user?.name ? 
+                        user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                        'DP'}
                     </div>
                     <div>
-                      <CardTitle>Dr. Parker</CardTitle>
+                      <CardTitle>{user?.name || 'Dr. Parker'}</CardTitle>
                       <CardDescription>Professor • Computer Science</CardDescription>
                     </div>
                   </div>

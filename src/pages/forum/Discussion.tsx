@@ -6,121 +6,35 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageSquare, ThumbsUp, Filter, Search, Plus, ArrowUp, ArrowDown } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PageTransition from "@/components/shared/PageTransition";
 import { toast } from 'sonner';
-
-// Mock function to get forum discussions
-const getForumDiscussions = async () => {
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return mock data
-  return {
-    data: [
-      {
-        id: 1,
-        title: 'Tips for preparing for the Data Structures final exam?',
-        content: 'I\'m struggling with some of the advanced topics. Any tips or resources that helped you prepare?',
-        author: {
-          id: 'user1',
-          name: 'Alex Johnson',
-          role: 'student',
-          avatar: null
-        },
-        date: '2 days ago',
-        tags: ['academics', 'computer science', 'exams'],
-        upvotes: 24,
-        downvotes: 2,
-        comments: 8,
-        category: 'academics'
-      },
-      {
-        id: 2,
-        title: 'Looking for study group for Physics 101',
-        content: 'Is anyone interested in forming a study group for Physics 101? We could meet twice a week in the library.',
-        author: {
-          id: 'user2',
-          name: 'Sarah Williams',
-          role: 'student',
-          avatar: null
-        },
-        date: '3 days ago',
-        tags: ['study group', 'physics', 'collaboration'],
-        upvotes: 15,
-        downvotes: 0,
-        comments: 12,
-        category: 'study groups'
-      },
-      {
-        id: 3,
-        title: 'Campus Wi-Fi issues in Building C',
-        content: 'Has anyone else been experiencing Wi-Fi connectivity issues in Building C, especially in the afternoon?',
-        author: {
-          id: 'user3',
-          name: 'Mike Chen',
-          role: 'student',
-          avatar: null
-        },
-        date: '5 days ago',
-        tags: ['campus issues', 'wifi', 'technical'],
-        upvotes: 32,
-        downvotes: 3,
-        comments: 17,
-        category: 'campus issues'
-      },
-      {
-        id: 4,
-        title: 'Recommended electives for Computer Science majors?',
-        content: 'I\'m looking to select my electives for next semester. Any recommendations for courses that complement a CS major?',
-        author: {
-          id: 'user4',
-          name: 'Jamie Taylor',
-          role: 'student',
-          avatar: null
-        },
-        date: '1 week ago',
-        tags: ['academics', 'computer science', 'course selection'],
-        upvotes: 19,
-        downvotes: 1,
-        comments: 23,
-        category: 'academics'
-      },
-      {
-        id: 5,
-        title: 'Internship opportunity at Tech Solutions Inc.',
-        content: 'My company is looking for summer interns in software development. Great opportunity for hands-on experience.',
-        author: {
-          id: 'user5',
-          name: 'Dr. Robert Lee',
-          role: 'faculty',
-          avatar: null
-        },
-        date: '1 week ago',
-        tags: ['internship', 'career', 'software development'],
-        upvotes: 45,
-        downvotes: 0,
-        comments: 31,
-        category: 'careers'
-      }
-    ],
-    success: true,
-    error: null
-  };
-};
+import { forumApi } from '@/services/api';
 
 const ForumDiscussion = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<'popular' | 'recent'>('popular');
+  
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const { data, isLoading } = useQuery({
     queryKey: ['forum-discussions'],
-    queryFn: getForumDiscussions,
+    queryFn: forumApi.getDiscussions,
+  });
+  
+  // Vote mutation
+  const voteMutation = useMutation({
+    mutationFn: ({ discussionId, isUpvote }: { discussionId: number, isUpvote: boolean }) => 
+      forumApi.voteDiscussion(discussionId, isUpvote),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forum-discussions'] });
+    }
   });
   
   const discussions = data?.data || [];
@@ -157,7 +71,7 @@ const ForumDiscussion = () => {
     if (sortBy === 'popular') {
       return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
     } else {
-      // Simple sort by id for "recent" (higher id = more recent in our mock data)
+      // Simple sort by id for "recent" (higher id = more recent)
       return b.id - a.id;
     }
   });
@@ -177,6 +91,7 @@ const ForumDiscussion = () => {
       return;
     }
     
+    voteMutation.mutate({ discussionId, isUpvote });
     toast.success(`You ${isUpvote ? 'upvoted' : 'downvoted'} the discussion`);
   };
   
@@ -186,8 +101,7 @@ const ForumDiscussion = () => {
       return;
     }
     
-    // In a real app, this would navigate to a new discussion form
-    toast.success('New discussion form would open here');
+    navigate('/forum/create');
   };
   
   const getInitials = (name: string) => {

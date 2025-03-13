@@ -7,78 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Eye, Calendar, User, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import PageTransition from "@/components/shared/PageTransition";
-
-// Mock function to get notices
-const getNotices = async () => {
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return mock data
-  return {
-    data: [
-      {
-        id: 1,
-        title: 'Final Examination Schedule Released',
-        content: 'The schedule for the final examinations has been released. Please check your student portal for your personalized schedule.',
-        date: 'April 15, 2023',
-        author: 'Office of Academic Affairs',
-        category: 'academics',
-        important: true,
-        views: 530
-      },
-      {
-        id: 2,
-        title: 'Campus Closure: May 25-27',
-        content: 'The campus will be closed for maintenance from May 25 to May 27. All scheduled classes during this period will be conducted online.',
-        date: 'April 10, 2023',
-        author: 'Campus Administration',
-        category: 'administrative',
-        important: true,
-        views: 427
-      },
-      {
-        id: 3,
-        title: 'Summer Internship Opportunities',
-        content: 'Several new summer internship opportunities have been posted on the career portal. Students interested should apply before April 30.',
-        date: 'April 8, 2023',
-        author: 'Career Development Center',
-        category: 'careers',
-        important: false,
-        views: 389
-      },
-      {
-        id: 4,
-        title: 'Library Extended Hours',
-        content: 'The university library will extend its hours from 8 AM to midnight starting April 20 until the end of the semester to support exam preparation.',
-        date: 'April 5, 2023',
-        author: 'University Library',
-        category: 'facilities',
-        important: false,
-        views: 256
-      },
-      {
-        id: 5,
-        title: 'Student Council Elections',
-        content: 'Nominations for the Student Council elections are now open. Students interested in running should submit their applications by April 25.',
-        date: 'April 3, 2023',
-        author: 'Student Affairs',
-        category: 'student life',
-        important: false,
-        views: 312
-      }
-    ],
-    success: true,
-    error: null
-  };
-};
+import { noticesApi } from '@/services/api';
 
 const Notices = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   
   const { data, isLoading } = useQuery({
-    queryKey: ['notices'],
-    queryFn: getNotices,
+    queryKey: ['notices-display'],
+    queryFn: noticesApi.getNotices,
   });
   
   const notices = data?.data || [];
