@@ -13,6 +13,24 @@ import PageTransition from "@/components/shared/PageTransition";
 import { toast } from 'sonner';
 import { forumApi } from '@/services/api';
 
+type Discussion = {
+  id: number;
+  title: string;
+  content: string;
+  author: {
+    id: string;
+    name: string;
+    role: string;
+    avatar: string | null;
+  };
+  date: string;
+  tags: string[];
+  upvotes: number;
+  downvotes: number;
+  comments: number;
+  category: string;
+};
+
 const ForumDiscussion = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -37,7 +55,7 @@ const ForumDiscussion = () => {
     }
   });
   
-  const discussions = data?.data || [];
+  const discussions: Discussion[] = data?.data || [];
   
   // Get all unique categories from discussions
   const categories = Array.from(new Set(discussions.map(discussion => discussion.category)));
@@ -166,9 +184,9 @@ const ForumDiscussion = () => {
             <span className="flex items-center text-sm text-muted-foreground">
               <Filter className="h-4 w-4 mr-1" /> Filter by tags:
             </span>
-            {allTags.slice(0, 10).map(tag => (
+            {allTags.slice(0, 10).map((tag, idx) => (
               <Badge
-                key={tag}
+                key={idx}
                 variant={selectedTags.includes(tag) ? "default" : "outline"}
                 className="cursor-pointer"
                 onClick={() => toggleTag(tag)}
@@ -192,8 +210,8 @@ const ForumDiscussion = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList className="mb-4">
             <TabsTrigger value="all">All Topics</TabsTrigger>
-            {categories.map(category => (
-              <TabsTrigger key={category} value={category} className="capitalize">
+            {categories.map((category, idx) => (
+              <TabsTrigger key={idx} value={category} className="capitalize">
                 {category}
               </TabsTrigger>
             ))}

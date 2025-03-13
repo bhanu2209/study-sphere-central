@@ -110,7 +110,8 @@ export const userApi = {
       id: '1',
       name: role === 'faculty' ? 'Dr. Parker' : 'John Smith',
       email,
-      role
+      role,
+      avatar: null
     };
     
     return {

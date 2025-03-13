@@ -9,6 +9,17 @@ import { useQuery } from '@tanstack/react-query';
 import PageTransition from "@/components/shared/PageTransition";
 import { noticesApi } from '@/services/api';
 
+type Notice = {
+  id: number;
+  title: string;
+  content: string;
+  date: string;
+  author: string;
+  category: string;
+  important: boolean;
+  views: number;
+};
+
 const Notices = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -18,7 +29,7 @@ const Notices = () => {
     queryFn: noticesApi.getNotices,
   });
   
-  const notices = data?.data || [];
+  const notices: Notice[] = data?.data || [];
   
   // Get all unique categories from notices
   const categories = Array.from(new Set(notices.map(notice => notice.category)));
@@ -67,8 +78,8 @@ const Notices = () => {
           <TabsList className="mb-4 flex flex-wrap">
             <TabsTrigger value="all">All Notices</TabsTrigger>
             <TabsTrigger value="important">Important</TabsTrigger>
-            {categories.map(category => (
-              <TabsTrigger key={category} value={category} className="capitalize">
+            {categories.map((category, index) => (
+              <TabsTrigger key={index} value={category} className="capitalize">
                 {category}
               </TabsTrigger>
             ))}
